@@ -51,6 +51,17 @@ def sum():
 
     return jsonify({'result': result})
 
+@app.route('/sum/result/<int:result>', methods=['GET'])
+def find_by_result(result):
+    sums = db.session.execute(db.select(Sum).where(Sum.result == result)).scalars()
+    return sums_schema.jsonify(sums), 200
+
+def test_invalid_filter_value(client):
+    response = client.get('/sum/result/999')
+    assert response.status_code == 200
+    assert response.json == []  
+
+
 with app.app_context():
     db.drop_all()
     db.create_all()
